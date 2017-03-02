@@ -663,6 +663,11 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
                 ft.circle = null;
             }
 
+            if (ft.group) {
+                ft.group.remove();
+                ft.group = null;
+            }
+
             return ft;
         };
 
