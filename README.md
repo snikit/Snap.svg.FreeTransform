@@ -27,7 +27,7 @@ Sets the attributes of the handles.
 Default: `{ fill: '#fff', stroke: '#000' }`
 
 
-#### `customCorners: { size: num, distance: num, corners: [ { action: string: image: string }, ... ] } | false
+#### `customCorners: { size: num, distance: num, corners: [ { action: string: image: string }, ... ] } | false`
 
 Specify custom images and events for corner handles.
 
@@ -113,6 +113,21 @@ Default: `{ rotate: 0, scale: 0, drag: 7 }`
 Sets the radius of the handles in pixels.
 
 Default: `5`
+
+#### `bboxScale: num`
+
+Sets a larger (or smaller) bounding box, rather than tight.
+
+Default: `1`
+
+#### `axisLineClass` (default ftaxisline)
+#### `bboxClass` (default ftcenterdisc)
+#### `centerDiscClass` (default ftcenterdisc)
+#### `centerCircleClass` (default ftcentercircle
+#### `discClass` (default ftdisc)
+#### `handleClass` (default fthandle)
+
+These are all classes you can set to change the looks of the freeTransform pars
 
 
 Callback
