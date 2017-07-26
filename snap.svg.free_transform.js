@@ -822,7 +822,6 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
         ft.apply = function() {
 
             ft.items.map(function(item, i) {
-
                 // Take offset values into account.
                 var center = {
                         x: ft.attrs.center.x + ft.offset.translate.x,
@@ -892,14 +891,15 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
             scan(subject);
             // Get the current transform values for each item
             ft.items.map(function(item, i) {
-
-	// I think this is broken, and not sure when used, I thought it was for sets, but leaving attempt at code for future ideas
+                //I think this is so we could start with a rotated ft. However, if we are going to apply the original el transform + the ft, I think we would need to subtract it later in code
+                //Otherwise we will be applying a rotation twice, once the original + the ft rotation, so leaving this out currently 
 		if (item.el._ && item.el._.transform ) {
-//	            ft.items[i].attrs.translate.x += ft.attrs.translate.x;
-//	            ft.items[i].attrs.translate.y += ft.attrs.translate.y;
-//	            ft.items[i].attrs.scale.x *= ft.attrs.scale.x;
-//	            ft.items[i].attrs.scale.y *= ft.attrs.scale.y;
-//	            ft.items[i].attrs.rotate = ft.attrs.rotate;
+                    //var trsplit = item.origTransform.split() ;
+                    //ft.items[i].attrs.translate.x += ft.attrs.translate.x;
+	            //ft.items[i].attrs.translate.y += ft.attrs.translate.y;
+	            //ft.items[i].attrs.scale.x *= ft.attrs.scale.x;
+	            //ft.items[i].attrs.scale.y *= ft.attrs.scale.y;
+                    //ft.items[i].attrs.rotate = trsplit.rotate;	// example I thought may work, but applies 2x rotation now
                 }
             });
         };
@@ -907,7 +907,7 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
         ft.scanItems();
 
         // If subject is not of type set, the first item _is_ the subject
-        if (0 && subject.type !== 'set') {
+        if (subject.type !== 'set') {
             ft.attrs.rotate = ft.items[0].attrs.rotate;
             ft.attrs.scale = ft.items[0].attrs.scale;
             ft.attrs.translate = ft.items[0].attrs.translate;
@@ -926,8 +926,8 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
             ft.items[0].transformString = '';
         }
 
-        ft.attrs.ratio = ft.attrs.scale.x / ft.attrs.scale.y;
 
+        ft.attrs.ratio = ft.attrs.scale.x / ft.attrs.scale.y;
         /**
          * Get rotated bounding box
          */
