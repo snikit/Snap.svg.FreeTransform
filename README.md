@@ -123,7 +123,7 @@ Default: `1`
 #### `axisLineClass` (default ftaxisline)
 #### `bboxClass` (default ftcenterdisc)
 #### `centerDiscClass` (default ftcenterdisc)
-#### `centerCircleClass` (default ftcentercircle
+#### `centerCircleClass` (default ftcentercircle)
 #### `discClass` (default ftdisc)
 #### `handleClass` (default fthandle)
 
