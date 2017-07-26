@@ -13,7 +13,7 @@ Snap.svg.FreeTransform
 Options
 -------
 
-#### `animate: true | { delay: num, easing: string } | false`
+#### `animate (currently defunct): true | { delay: num, easing: string } | false`
 
 Animate transformations. Works best in combination with `apply()` (see the functions section below).
 
