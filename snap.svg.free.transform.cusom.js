@@ -196,6 +196,8 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
         ];
 
         if (ft.handles.bbox) {
+          let addTextTipsFlag = true;
+
           ft.handles.bbox.map(function(handle, i) {
             var cx, cy, j, k;
 
@@ -222,9 +224,41 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
                   : ft.opts.size.bboxSides),
               transform: 'R' + ft.attrs.rotate
             });
-
             handle.x = bboxHandleDirection[i][0];
             handle.y = bboxHandleDirection[i][1];
+
+            // handling textTips dragging and scaling
+            if (addTextTipsFlag) {
+              addTextTipsFlag = !addTextTipsFlag;
+
+              let length = 0;
+              let width = 0;
+
+              ft.textTips[0].attr({
+                x:
+                  (length = distanceBtwPoints(
+                    corners[0].x,
+                    corners[0].y,
+                    corners[1].x,
+                    corners[1].y
+                  )) / 2
+              });
+              ft.textTips[0].textPath.node.innerHTML = length + '"';
+
+              ft.textTips[1].attr({
+                x:
+                  2 * length +
+                  1.5 *
+                    (width = distanceBtwPoints(
+                      corners[1].x,
+                      corners[1].y,
+                      corners[2].x,
+                      corners[2].y
+                    ))
+              });
+
+              ft.textTips[1].textPath.node.innerHTML = width + '"';
+            }
           });
         }
       }
@@ -255,6 +289,7 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
 
       ft.axes.map(function(axis) {
         ft.handles[axis] = {};
+        ft.textTips = [];
 
         ft.handles[axis].line = paper
           .path([
@@ -280,14 +315,30 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
       if (ft.opts.draw.indexOf('bbox') >= 0) {
         ft.bbox = paper.path('').attr({
           stroke: ft.opts.attrs.stroke,
-          // 'stroke-dasharray': '4,3',
+          //   'stroke-dasharray': '4,3',
           fill: 'none',
           opacity: 0.5
         });
 
+        // since we want it in .5 * length of x axis
+        ft.textTips.push(
+          paper.text(0, 0, ft.attrs.size.x + '"').attr({
+            textpath: ft.bbox,
+            transform: 'T 0 -3'
+          })
+        );
+
+        // path will 2 * length of x axis + 1.5 length of y axis
+        ft.textTips.push(
+          paper.text(0, 0, ft.attrs.size.y + '"').attr({
+            textpath: ft.bbox,
+            transform: 'T -3'
+          })
+        );
+
         ft.handles.bbox = [];
 
-        fixCorners(
+        addDeleteButton(
           {
             axis: 'x',
             isCorner: true
@@ -633,12 +684,12 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
                 (mirrored.x ? -1 : 1) * ft.o.scale.x +
                 (radius - ft.o.radius) / (ft.o.size.x / 2);
 
-              if (mirrored.x) {
-                ft.attrs.scale.x *= -1;
-              }
-              if (mirrored.y) {
-                t.attrs.scale.y *= -1;
-              }
+              //   if (mirrored.x) {
+              //     ft.attrs.scale.x *= -1;
+              //   }
+              //   if (mirrored.y) {
+              //     t.attrs.scale.y *= -1;
+              //   }
             }
 
             applyLimits();
@@ -733,49 +784,51 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
     };
 
     ft.attachHandlers = function(draggables) {
-      draggables.map(function(draggable) {
-        draggable.drag(
-          function(dx, dy) {
-            ft.attrs.translate.x = ft.o.translate.x + dx;
-            ft.attrs.translate.y = ft.o.translate.y + dy;
+      let draggable = paper.group(...draggables);
 
-            var bbox = cloneObj(ft.o.bbox);
+      //   draggables.map(function(draggable) {
+      draggable.drag(
+        function(dx, dy) {
+          ft.attrs.translate.x = ft.o.translate.x + dx;
+          ft.attrs.translate.y = ft.o.translate.y + dy;
 
-            bbox.x += dx;
-            bbox.y += dy;
+          var bbox = cloneObj(ft.o.bbox);
 
-            applyLimits(bbox);
+          bbox.x += dx;
+          bbox.y += dy;
 
-            asyncCallback(['drag']);
+          applyLimits(bbox);
 
-            ft.apply();
-          },
-          function() {
-            // Offset values.
-            ft.o = cloneObj(ft.attrs);
+          asyncCallback(['drag']);
 
-            if (ft.opts.snap.drag) {
-              ft.o.bbox = subject.getBBox();
-            }
+          ft.apply();
+        },
+        function() {
+          // Offset values.
+          ft.o = cloneObj(ft.attrs);
 
-            ft.axes.map(function(axis) {
-              if (ft.handles[axis]) {
-                ft.handles[axis].disc.ox = parseInt(
-                  ft.handles[axis].disc.attr('cx')
-                );
-                ft.handles[axis].disc.oy = parseInt(
-                  ft.handles[axis].disc.attr('cy')
-                );
-              }
-            });
-
-            asyncCallback(['drag start']);
-          },
-          function() {
-            asyncCallback(['drag end']);
+          if (ft.opts.snap.drag) {
+            ft.o.bbox = subject.getBBox();
           }
-        );
-      });
+
+          ft.axes.map(function(axis) {
+            if (ft.handles[axis]) {
+              ft.handles[axis].disc.ox = parseInt(
+                ft.handles[axis].disc.attr('cx')
+              );
+              ft.handles[axis].disc.oy = parseInt(
+                ft.handles[axis].disc.attr('cy')
+              );
+            }
+          });
+
+          asyncCallback(['drag start']);
+        },
+        function() {
+          asyncCallback(['drag end']);
+        }
+      );
+      //   });
     };
 
     /**
@@ -1225,6 +1278,26 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
       }, 1);
     }
 
+    function addDeleteButton(handle, ft, paper, index) {
+      handle.element = paper
+        .rect(
+          ft.attrs.center.x,
+          ft.attrs.center.y,
+          ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides'] * 3,
+          ft.opts.size[handle.isCorner ? 'bboxCorners' : 'bboxSides'] * 3,
+          50
+        )
+        .attr(ft.opts.attrs);
+
+      ft.handles.bbox[index] = handle;
+    }
+
+    function distanceBtwPoints(x1, y1, x2, y2) {
+      let xs = x2 - x1,
+        ys = y2 - y1;
+      return Math.round(Math.sqrt(xs * xs + ys * ys));
+    }
+
     // fixing corners for ICOVIA
     // #optmize2
     function fixCorners(handle, ft, paper, index) {
@@ -1254,5 +1327,10 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
 
     // Enable method chaining
     return ft;
+  };
+
+  window.onkeydown = function(event) {
+    console.log(ft);
+    event.stopPropagation();
   };
 });
