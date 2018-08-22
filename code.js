@@ -51,7 +51,6 @@ bigCircle.click(function() {
 });
 
 s.click(function(e) {
-  console.log(e);
   if (e.srcElement.id && e.srcElement.id == DIV_ID) {
     ft.hideHandles();
   }

@@ -1298,6 +1298,45 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
       return Math.round(Math.sqrt(xs * xs + ys * ys));
     }
 
+    window.onkeydown = function(event) {
+      if (event.keyCode < 37 && event.keyCode > 40) {
+        return;
+      }
+
+      let dx = 0,
+        dy = 0;
+
+      switch (event.keyCode) {
+        case 37:
+          dx = -5;
+          break;
+        case 39:
+          dx = 5;
+          break;
+        case 38:
+          dy = -5;
+          break;
+        case 40:
+          dy = 5;
+          break;
+      }
+
+      ft.attrs.translate.x = ft.attrs.translate.x + dx;
+      ft.attrs.translate.y = ft.attrs.translate.y + dy;
+
+      //# may be this has an impact need to test
+      // var bbox = cloneObj(ft.bbox);
+      // bbox.x += dx;
+      // bbox.y += dy;
+      // applyLimits(bbox);
+
+      asyncCallback(['key-drag']);
+
+      ft.apply();
+
+      event.preventDefault();
+    };
+
     // fixing corners for ICOVIA
     // #optmize2
     function fixCorners(handle, ft, paper, index) {
@@ -1327,10 +1366,5 @@ Snap.plugin(function(Snap, Element, Paper, global, Fragment) {
 
     // Enable method chaining
     return ft;
-  };
-
-  window.onkeydown = function(event) {
-    console.log(ft);
-    event.stopPropagation();
   };
 });
